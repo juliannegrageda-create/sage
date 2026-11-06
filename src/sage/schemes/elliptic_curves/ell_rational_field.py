@@ -4814,6 +4814,42 @@ class EllipticCurve_rational_field(EllipticCurve_number_field):
             return True
         return E2 in E1.isogeny_class().curves
 
+    def is_congruent(self, other, l):
+        r"""
+        returns if two elliptic curves are congruent modulo a prime l
+
+        INPUT:
+
+        - ''other'' is an elliptic curve
+        - ''l'' must be any prime
+
+        EXAMPLES:
+        sage: E1 = EllipticCurve('11a1')
+        sage: E2 = EllipticCurve('26a1')
+        sage: E3 = EllipticCurve('34a1')
+
+        sage: E1.is_congruent(E1, 5)
+        True
+
+        sage: E1.is_congruent(E2, 2)
+        False
+
+        sage: E2.is_congruent(E3, 3)
+        True
+
+        """
+        if not isinstance(other, EllipticCurve_generic):
+            raise ValueError("second argument is not an elliptic curve")
+        if other.base_field() is not QQ:
+            raise ValueError("the base field of the second elliptic curve must be the rationals")
+        l = ZZ(l)
+        if not l.is_prime():
+            raise ValueError("l must be a prime")
+        for p in prime_range(self.sturm_bound(other)):
+            if p != l and self.is_good(p) == True and other.is_good(p) == True and (self.ap(p) - other.ap(p)) % l != 0:
+                return False
+        return True
+
     def isogeny_degree(self, other):
         r"""
         Return the minimal degree of an isogeny between ``self`` and
